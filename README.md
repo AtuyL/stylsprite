@@ -1,0 +1,4 @@
+stylsprite
+==========
+
+CSSSprite for stylus.
