@@ -1,38 +1,81 @@
 stylsprite
 ==========
 
-CSSSprite for stylus.
+CSS sprites for Stylus. (right now .png only)
 
-### Usage in connect
+### Usage with connect
 
-```coffee-script
-	options =
-		src: 'test/src/stylus'
-		dest: 'test/public/css'
-		root: 'test/public'
-		imgsrc: 'test/src/imgsrc'
-	
-	app.use '/css',stylsprite.middleware options
-	options.compile = stylsprite.middleware.compile
-	app.use '/css',stylus.middleware options
+```javascript
+options = {
+  src: 'test/src/stylus',
+  dest: 'test/public/css',
+  compile: stylsprite.middleware.compile
+};
+
+app.use('/css', stylsprite.middleware(options));
+app.use('/css', stylus.middleware(options));
 ```
 
-### Usage in *.styl
+### Usage with Stylus files.
+
+Just change any use of background-image like this ...
 
 ```stylus
-	background-image: url('path/to/image.png')
+background-image: url('path/to/image.png')
 ```
 
-change to below
+... into ...
 
 ```stylus
-	stylsprite(url('path/to/image.png'))
+stylsprite(url('path/to/image.png'))
 ```
 
-if you want retina image sprite then add pixel-ratio to arguments.
+Now all your background images will be automatically combined to sprites.
+
+To specify that this background is for retina displays you can add a pixel-ratio argument:
 
 ```stylus
-	stylsprite(url('path/to/image.png'),2)
+stylsprite(url('path/to/image.png'),2)
 ```
 
-thank you for reading. :)
+### Root property for absolute urls
+
+By default Stylsprite will lookup absolute urls images on the same location as the css
+files are generated.
+
+To make sure that absolute paths like ```/img/myimg.png``` are not loaded from ```/css/img/myimg.png```
+add it like this:
+
+```javascript
+options = {
+  src: 'test/src/stylus',
+  dest: 'test/public/css',
+  root: 'test/public',
+  compile: stylsprite.middleware.compile
+};
+
+app.use('/css', stylsprite.middleware(options));
+app.use('/css', stylus.middleware(options));
+```
+
+### Imgsrc property to load images from a different location
+
+By default Stylsprite will lookup images on the same location as the css
+files are generated.
+
+Use ```imgsrc``` to make load images from a different path:
+
+```javascript
+options = {
+  src: 'test/src/stylus',
+  dest: 'test/public/css',
+  imgsrc: 'test/src/imgsrc',
+  compile: stylsprite.middleware.compile
+};
+
+app.use('/css', stylsprite.middleware(options));
+app.use('/css', stylus.middleware(options));
+```
+
+
+Thanks for reading. :)
