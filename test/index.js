@@ -1,6 +1,9 @@
 'use strict';
 
-var chalk = require('chalk'),
+var fs = require('fs'),
+    async = require('async'),
+
+    chalk = require('chalk'),
 
     Lab = require('lab'),
     lab = exports.lab = Lab.script(),
@@ -11,12 +14,13 @@ var chalk = require('chalk'),
     after = lab.after,
     expect = Lab.expect;
 
-lab.experiment('utils/array', function () {
-    var array = require('../lib/utils/array'),
-        flatten = array.flatten,
-        uniq = array.uniq;
-    lab.test('flatten', function (done) {
-        var cases = [null, [1], 2, [
+lab.experiment('utils', function () {
+    var flatten = require('../lib/utils/array').flatten,
+        uniq = require('../lib/utils/array').uniq,
+        readFilesDeep = require('../lib/utils/fs').readFilesDeep;
+    lab.test('array.flatten', function (done) {
+        var cases = [
+            null, [1], 2, [
                 [3, 4], 5
             ],
             [
@@ -31,10 +35,11 @@ lab.experiment('utils/array', function () {
             ], 7, 8, [], null
         ];
         cases = flatten(cases);
+        // console.log(JSON.stringify(cases, null, '  '));
         expect(cases.join(',')).to.equal(',1,2,3,4,5,6,7,8,');
         done();
     });
-    lab.test('uniq', function (done) {
+    lab.test('array.uniq', function (done) {
         var cases = ['a', 'b', 'a', null, undefined, null, undefined, NaN],
             equal = ['a', 'b', null, undefined],
             result;
@@ -45,30 +50,53 @@ lab.experiment('utils/array', function () {
         expect(result).to.equal(true);
         done();
     });
+    lab.test('fs.readFilesDeep', function (done) {
+        readFilesDeep('test/public', null, null, function (error, result) {
+            var array = require('../lib/utils/array'),
+                flatten = array.flatten;
+            // console.log('');
+            // console.log(JSON.stringify(result, null, '  '));
+            // result = flatten(result);
+            // console.log(JSON.stringify(result, null, '  '));
+            async.each(flatten(result), fs.unlink, function () {
+                done();
+            });
+        });
+    });
 });
 
 lab.experiment('middleware', function () {
     var stylus = require('stylus'),
-        stylsprite = require('../lib'),
-        options = stylsprite.middleware.options(
-            'test/src/stylus',
-            'test/public/css',
-            'test/public',
-            'test/src/imgsrc'
-        ),
-        stylsprite_mw = stylsprite.middleware(options),
-        stylus_mw = stylus.middleware(options);
+        stylsprite = require('../lib');
+
+    lab.before(function (done) {
+        var readFilesDeep = require('../lib/utils/fs').readFilesDeep;
+        readFilesDeep('test/public', null, null, function (error, result) {
+            var array = require('../lib/utils/array'),
+                flatten = array.flatten;
+            async.each(flatten(result), fs.unlink, function () {
+                done();
+            });
+        });
+    });
 
     lab.test('dummy requests', function (done) {
-        var async = require('async'),
-            i,
-            requests = ['/hoge.css','/fuga.css'];
-        requests = requests.map(function(cssPath){
+        var requests = ['/relative.css', '/absolute.css'],
+            options = stylsprite.middleware.options(
+                'test/src/stylus',
+                'test/public/css',
+                'test/public',
+                'test/src/imgsrc'
+            ),
+            stylsprite_mw = stylsprite.middleware(options),
+            stylus_mw = stylus.middleware(options);
+        requests = requests.map(function (cssPath) {
             return {
                 method: 'GET',
                 url: cssPath
             }
         });
+        // simulate `express().use` expression
         return async.each(requests, function (req, next) {
             return stylsprite_mw(req, {}, function () {
                 return stylus_mw(req, {}, next);
