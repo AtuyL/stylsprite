@@ -6,7 +6,7 @@ var fs = require('fs'),
     chalk = require('chalk'),
 
     Lab = require('lab'),
-    lab = exports.lab = Lab.script(),
+    lab = Lab.script(),
 
     suite = lab.suite,
     test = lab.test,
@@ -51,9 +51,8 @@ lab.experiment('utils', function () {
         done();
     });
     lab.test('fs.readFilesDeep', function (done) {
+        /*jslint unparam: true */
         readFilesDeep('test/public', null, null, function (error, result) {
-            var array = require('../lib/utils/array'),
-                flatten = array.flatten;
             // console.log('');
             // console.log(JSON.stringify(result, null, '  '));
             // result = flatten(result);
@@ -62,6 +61,7 @@ lab.experiment('utils', function () {
                 done();
             });
         });
+        /*jslint unparam: false */
     });
 });
 
@@ -71,6 +71,7 @@ lab.experiment('middleware', function () {
 
     lab.before(function (done) {
         var readFilesDeep = require('../lib/utils/fs').readFilesDeep;
+        /*jslint unparam: true */
         readFilesDeep('test/public', null, null, function (error, result) {
             var array = require('../lib/utils/array'),
                 flatten = array.flatten;
@@ -78,6 +79,7 @@ lab.experiment('middleware', function () {
                 done();
             });
         });
+        /*jslint unparam: false */
     });
 
     lab.test('dummy requests', function (done) {
@@ -94,7 +96,7 @@ lab.experiment('middleware', function () {
             return {
                 method: 'GET',
                 url: cssPath
-            }
+            };
         });
         // simulate `express().use` expression
         return async.each(requests, function (req, next) {
