@@ -17,6 +17,51 @@ var fs = require('fs'),
 
 exports.lab = lab;
 
+lab.experiment('standalone use', function () {
+    var stylsprite = require('../lib'),
+        stream = require('stream');
+
+    lab.before(function (done) {
+        var readFilesDeep = require('../lib/utils/fs').readFilesDeep;
+        /*jslint unparam: true */
+        readFilesDeep('test/public', null, null, function (error, result) {
+            var array = require('../lib/utils/array'),
+                flatten = array.flatten;
+            async.each(flatten(result), fs.unlink, function () {
+                done();
+            });
+        });
+        /*jslint unparam: false */
+    });
+
+    lab.test('absolute', function (done) {
+        var src = fs.createReadStream('test/src/stylus/absolute.styl',{
+                flags: 'r',
+                encoding: 'utf8',
+                fd: null,
+                // mode: 0666,
+                autoClose: false
+            }),
+            dest = fs.createWriteStream('test/public/css/absolute.css');
+
+        src
+            .pipe(
+                stylsprite.transform({
+                    src: src.path,
+                    root: 'test/public',
+                    imgsrc: 'test/src/imgsrc'
+                }, {
+                    padding: 2
+                })
+            )
+            .pipe(dest);
+
+        dest.on('unpipe', function () {
+            done();
+        });
+    });
+});
+
 lab.experiment('utils', function () {
     var flatten = require('../lib/utils/array').flatten,
         uniq = require('../lib/utils/array').uniq,
