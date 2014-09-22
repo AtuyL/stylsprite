@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs'),
+    exec = require('child_process').exec,
     async = require('async'),
 
     chalk = require('chalk'),
@@ -13,6 +14,8 @@ var fs = require('fs'),
     before = lab.before,
     after = lab.after,
     expect = Lab.expect;
+
+exports.lab = lab;
 
 lab.experiment('utils', function () {
     var flatten = require('../lib/utils/array').flatten,
@@ -66,7 +69,8 @@ lab.experiment('utils', function () {
 });
 
 lab.experiment('middleware', function () {
-    var stylus = require('stylus'),
+    var express = require('express'),
+        stylus = require('stylus'),
         stylsprite = require('../lib');
 
     lab.before(function (done) {
@@ -90,7 +94,10 @@ lab.experiment('middleware', function () {
                 'test/public',
                 'test/src/imgsrc'
             ),
-            stylsprite_mw = stylsprite.middleware(options),
+            stylsprite_mw = stylsprite.middleware(options, {
+                // verbose: true,
+                padding: 2
+            }),
             stylus_mw = stylus.middleware(options);
         requests = requests.map(function (cssPath) {
             return {
@@ -104,5 +111,36 @@ lab.experiment('middleware', function () {
                 return stylus_mw(req, {}, next);
             });
         }, done);
+    });
+
+    lab.test('curl requests', function (done) {
+        var app = express(),
+            options = stylsprite.middleware.options(
+                'test/src/stylus',
+                'test/public/css',
+                'test/public',
+                'test/src/imgsrc'
+            ),
+            stylsprite_mw = stylsprite.middleware(options, {
+                // verbose: true,
+                padding: 2
+            }),
+            stylus_mw = stylus.middleware(options);
+
+        app.set('views', __dirname + '/src');
+        app.set('view engine', 'jade');
+        app.use('/css', stylsprite_mw);
+        app.use('/css', stylus_mw);
+        app.use(express["static"](__dirname + '/public'));
+        /*jslint unparam: true */
+        app.get('/', function (req, res) {
+            return res.render('index');
+        });
+        app.listen(8080, function () {
+            exec('curl http://localhost:8080/css/absolute.css', function (error, stdout, stderr) {
+                done(error);
+            });
+        });
+        /*jslint unparam: false */
     });
 });
