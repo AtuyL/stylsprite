@@ -12,7 +12,7 @@ options = {
   compile: stylsprite.middleware.compile
 };
 
-app.use('/css', stylsprite.middleware(options));
+app.use('/css', stylsprite.middleware(options, { padding: 2 }));
 app.use('/css', stylus.middleware(options));
 ```
 
@@ -54,7 +54,7 @@ options = {
   compile: stylsprite.middleware.compile
 };
 
-app.use('/css', stylsprite.middleware(options));
+app.use('/css', stylsprite.middleware(options, { padding: 2 }));
 app.use('/css', stylus.middleware(options));
 ```
 
@@ -73,7 +73,7 @@ options = {
   compile: stylsprite.middleware.compile
 };
 
-app.use('/css', stylsprite.middleware(options));
+app.use('/css', stylsprite.middleware(options, { padding: 2 }));
 app.use('/css', stylus.middleware(options));
 ```
 
