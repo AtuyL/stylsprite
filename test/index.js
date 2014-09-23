@@ -35,7 +35,7 @@ lab.experiment('standalone use', function () {
     });
 
     lab.test('absolute', function (done) {
-        var src = fs.createReadStream('test/src/stylus/absolute.styl',{
+        var src = fs.createReadStream('test/src/stylus/absolute.styl', {
                 flags: 'r',
                 encoding: 'utf8',
                 fd: null,
@@ -46,14 +46,14 @@ lab.experiment('standalone use', function () {
 
         src
             .pipe(
-                stylsprite.transform({
-                    src: src.path,
-                    root: 'test/public',
-                    imgsrc: 'test/src/imgsrc'
-                }, {
-                    padding: 2
-                })
-            )
+                stylsprite.transform(
+                    src.path, {
+                        root: 'test/public',
+                        imgsrc: 'test/src/imgsrc',
+                        padding: 2
+                    }
+                )
+        )
             .pipe(dest);
 
         dest.on('unpipe', function () {
@@ -61,6 +61,7 @@ lab.experiment('standalone use', function () {
         });
     });
 });
+
 
 lab.experiment('utils', function () {
     var flatten = require('../lib/utils/array').flatten,
@@ -137,12 +138,12 @@ lab.experiment('middleware', function () {
                 'test/src/stylus',
                 'test/public/css',
                 'test/public',
-                'test/src/imgsrc'
+                'test/src/imgsrc',
+                {
+                    padding: 2
+                }
             ),
-            stylsprite_mw = stylsprite.middleware(options, {
-                // verbose: true,
-                padding: 2
-            }),
+            stylsprite_mw = stylsprite.middleware(options),
             stylus_mw = stylus.middleware(options);
         requests = requests.map(function (cssPath) {
             return {
@@ -164,12 +165,12 @@ lab.experiment('middleware', function () {
                 'test/src/stylus',
                 'test/public/css',
                 'test/public',
-                'test/src/imgsrc'
+                'test/src/imgsrc',
+                {
+                    padding: 2
+                }
             ),
-            stylsprite_mw = stylsprite.middleware(options, {
-                // verbose: true,
-                padding: 2
-            }),
+            stylsprite_mw = stylsprite.middleware(options),
             stylus_mw = stylus.middleware(options);
 
         app.set('views', __dirname + '/src');
