@@ -9,10 +9,11 @@ CSS sprites for Stylus. (right now .png only)
 options = {
   src: 'test/src/stylus',
   dest: 'test/public/css',
-  compile: stylsprite.middleware.compile
+  compile: stylsprite.middleware.compile,
+  padding: 2
 };
 
-app.use('/css', stylsprite.middleware(options, { padding: 2 }));
+app.use('/css', stylsprite.middleware(options));
 app.use('/css', stylus.middleware(options));
 ```
 
@@ -51,10 +52,11 @@ options = {
   src: 'test/src/stylus',
   dest: 'test/public/css',
   root: 'test/public',
-  compile: stylsprite.middleware.compile
+  compile: stylsprite.middleware.compile,
+  padding: 2
 };
 
-app.use('/css', stylsprite.middleware(options, { padding: 2 }));
+app.use('/css', stylsprite.middleware(options));
 app.use('/css', stylus.middleware(options));
 ```
 
@@ -70,10 +72,11 @@ options = {
   src: 'test/src/stylus',
   dest: 'test/public/css',
   imgsrc: 'test/src/imgsrc',
-  compile: stylsprite.middleware.compile
+  compile: stylsprite.middleware.compile,
+  padding: 2
 };
 
-app.use('/css', stylsprite.middleware(options, { padding: 2 }));
+app.use('/css', stylsprite.middleware(options));
 app.use('/css', stylus.middleware(options));
 ```
 
