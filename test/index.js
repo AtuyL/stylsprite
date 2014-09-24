@@ -151,7 +151,18 @@ lab.experiment('middleware', function () {
             return res.render('index');
         });
         app.listen(8080, function () {
-            exec('curl http://localhost:8080/css/absolute.css', function (error, stdout, stderr) {
+            async.series([
+                function (next) {
+                    exec('curl http://localhost:8080/css/relative.css', function (error, stdout, stderr) {
+                        next(error);
+                    });
+                },
+                function (next) {
+                    exec('curl http://localhost:8080/css/absolute.css', function (error, stdout, stderr) {
+                        next(error);
+                    });
+                }
+            ], function (error) {
                 done(error);
             });
         });
@@ -180,7 +191,18 @@ lab.experiment('middleware', function () {
             return res.render('index');
         });
         app.listen(8888, function () {
-            exec('curl http://localhost:8888/css/absolute.css', function (error, stdout, stderr) {
+            async.series([
+                function (next) {
+                    exec('curl http://localhost:8888/css/relative.css', function (error, stdout, stderr) {
+                        next(error);
+                    });
+                },
+                function (next) {
+                    exec('curl http://localhost:8888/css/absolute.css', function (error, stdout, stderr) {
+                        next(error);
+                    });
+                }
+            ], function (error) {
                 done(error);
             });
         });
