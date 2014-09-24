@@ -18,8 +18,7 @@ var fs = require('fs'),
 exports.lab = lab;
 
 lab.experiment('standalone use', function () {
-    var stylsprite = require('../lib'),
-        stream = require('stream');
+    var stylsprite = require('../lib');
 
     lab.before(function (done) {
         var readFilesDeep = require('../lib/utils/fs').readFilesDeep;
@@ -42,18 +41,15 @@ lab.experiment('standalone use', function () {
                 // mode: 0666,
                 autoClose: false
             }),
-            dest = fs.createWriteStream('test/public/css/absolute.css');
+            dest = fs.createWriteStream('test/public/css/absolute.css'),
+            transform = stylsprite.transform(src.path, {
+                root: 'test/public',
+                imgsrc: 'test/src/imgsrc',
+                padding: 2
+            });
 
         src
-            .pipe(
-                stylsprite.transform(
-                    src.path, {
-                        root: 'test/public',
-                        imgsrc: 'test/src/imgsrc',
-                        padding: 2
-                    }
-                )
-        )
+            .pipe(transform)
             .pipe(dest);
 
         dest.on('unpipe', function () {
@@ -134,16 +130,16 @@ lab.experiment('middleware', function () {
 
     lab.test('dummy requests', function (done) {
         var requests = ['/relative.css', '/absolute.css'],
-            options = stylsprite.middleware.options(
-                'test/src/stylus',
-                'test/public/css',
-                'test/public',
-                'test/src/imgsrc',
-                {
-                    padding: 2
-                }
-            ),
-            stylsprite_mw = stylsprite.middleware(options),
+            options = {
+                src: 'test/src/stylus',
+                dest: 'test/public/css',
+                root: 'test/public',
+                imgsrc: 'test/src/imgsrc',
+                compile: stylsprite.middleware.compile
+            },
+            stylsprite_mw = stylsprite.middleware(options, {
+                padding: 2
+            }),
             stylus_mw = stylus.middleware(options);
         requests = requests.map(function (cssPath) {
             return {
@@ -161,16 +157,16 @@ lab.experiment('middleware', function () {
 
     lab.test('curl requests', function (done) {
         var app = express(),
-            options = stylsprite.middleware.options(
-                'test/src/stylus',
-                'test/public/css',
-                'test/public',
-                'test/src/imgsrc',
-                {
-                    padding: 2
-                }
-            ),
-            stylsprite_mw = stylsprite.middleware(options),
+            options = {
+                src: 'test/src/stylus',
+                dest: 'test/public/css',
+                root: 'test/public',
+                imgsrc: 'test/src/imgsrc',
+                compile: stylsprite.middleware.compile
+            },
+            stylsprite_mw = stylsprite.middleware(options, {
+                padding: 2
+            }),
             stylus_mw = stylus.middleware(options);
 
         app.set('views', __dirname + '/src');
