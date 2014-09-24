@@ -115,7 +115,7 @@ lab.experiment('middleware', function () {
         stylus = require('stylus'),
         stylsprite = require('../lib');
 
-    lab.before(function (done) {
+    lab.beforeEach(function (done) {
         var readFilesDeep = require('../lib/utils/fs').readFilesDeep;
         /*jslint unparam: true */
         readFilesDeep('test/public', null, null, function (error, result) {
@@ -128,41 +128,13 @@ lab.experiment('middleware', function () {
         /*jslint unparam: false */
     });
 
-    lab.test('dummy requests', function (done) {
-        var requests = ['/relative.css', '/absolute.css'],
-            options = {
-                src: 'test/src/stylus',
-                dest: 'test/public/css',
-                root: 'test/public',
-                imgsrc: 'test/src/imgsrc',
-                compile: stylsprite.middleware.compile
-            },
-            stylsprite_mw = stylsprite.middleware(options, {
-                padding: 2
-            }),
-            stylus_mw = stylus.middleware(options);
-        requests = requests.map(function (cssPath) {
-            return {
-                method: 'GET',
-                url: cssPath
-            };
-        });
-        // simulate `express().use` expression
-        return async.each(requests, function (req, next) {
-            return stylsprite_mw(req, {}, function () {
-                return stylus_mw(req, {}, next);
-            });
-        }, done);
-    });
-
     lab.test('curl requests', function (done) {
         var app = express(),
             options = {
                 src: 'test/src/stylus',
                 dest: 'test/public/css',
                 root: 'test/public',
-                imgsrc: 'test/src/imgsrc',
-                compile: stylsprite.middleware.compile
+                imgsrc: 'test/src/imgsrc'
             },
             stylsprite_mw = stylsprite.middleware(options, {
                 padding: 2
@@ -180,6 +152,35 @@ lab.experiment('middleware', function () {
         });
         app.listen(8080, function () {
             exec('curl http://localhost:8080/css/absolute.css', function (error, stdout, stderr) {
+                done(error);
+            });
+        });
+        /*jslint unparam: false */
+    });
+
+    lab.test('onestop option', function (done) {
+        var app = express(),
+            options = {
+                src: 'test/src/stylus',
+                dest: 'test/public/css',
+                root: 'test/public',
+                imgsrc: 'test/src/imgsrc'
+            },
+            stylsprite_mw = stylsprite.middleware(options, {
+                padding: 2,
+                onestop: true
+            });
+
+        app.set('views', __dirname + '/src');
+        app.set('view engine', 'jade');
+        app.use('/css', stylsprite_mw);
+        app.use(express["static"](__dirname + '/public'));
+        /*jslint unparam: true */
+        app.get('/', function (req, res) {
+            return res.render('index');
+        });
+        app.listen(8888, function () {
+            exec('curl http://localhost:8888/css/absolute.css', function (error, stdout, stderr) {
                 done(error);
             });
         });
