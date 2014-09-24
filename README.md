@@ -52,7 +52,6 @@ options = {
   src: 'test/src/stylus',
   dest: 'test/public/css',
   root: 'test/public',
-  compile: stylsprite.middleware.compile,
   padding: 2
 };
 
@@ -72,7 +71,6 @@ options = {
   src: 'test/src/stylus',
   dest: 'test/public/css',
   imgsrc: 'test/src/imgsrc',
-  compile: stylsprite.middleware.compile,
   padding: 2
 };
 
@@ -80,5 +78,19 @@ app.use('/css', stylsprite.middleware(options));
 app.use('/css', stylus.middleware(options));
 ```
 
+### OneStopOption
+
+```javascript
+options = {
+  src: 'test/src/stylus',
+  dest: 'test/public/css',
+  imgsrc: 'test/src/imgsrc',
+  padding: 2,
+  onestop: true
+};
+
+app.use('/css', stylsprite.middleware(options));
+// app.use('/css', stylus.middleware(options)); <- needlessness in onestop mode
+```
 
 Thanks for reading. :)
